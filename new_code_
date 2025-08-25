@@ -1,0 +1,52 @@
+# Super Learner (Stacking Ensemble) Example
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split, KFold, cross_val_score
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, AdaBoostRegressor, StackingRegressor
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+
+# External libraries
+from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
+from catboost import CatBoostRegressor
+
+# Example: Load your dataset (replace with your HPC data)
+# df = pd.read_csv("your_data.csv")
+# X = df.drop("compressive_strength", axis=1)
+# y = df["compressive_strength"]
+
+# Dummy data for illustration
+X = np.random.rand(500, 8)   # 8 features like cement, water, FA, CA, etc.
+y = 50 + 20*X[:,0] - 10*X[:,1] + np.random.randn(500) * 2
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Base learners
+base_learners = [
+    ('rf', RandomForestRegressor(n_estimators=200, random_state=42)),
+    ('gbm', GradientBoostingRegressor(n_estimators=200, random_state=42)),
+    ('xgb', XGBRegressor(n_estimators=200, random_state=42, verbosity=0)),
+    ('lgbm', LGBMRegressor(n_estimators=200, random_state=42, verbose=-1)),
+    ('cat', CatBoostRegressor(n_estimators=200, random_state=42, verbose=0)),
+    ('ada', AdaBoostRegressor(n_estimators=200, random_state=42))
+]
+
+# Super Learner (Stacking)
+super_learner = StackingRegressor(
+    estimators=base_learners,
+    final_estimator=RandomForestRegressor(n_estimators=300, random_state=42), # meta-learner
+    passthrough=True,  # passes original features + predictions
+    n_jobs=-1
+)
+
+# Train
+super_learner.fit(X_train, y_train)
+
+# Predict
+y_pred = super_learner.predict(X_test)
+
+# Evaluation
+print("R²:", r2_score(y_test, y_pred))
+print("RMSE:", np.sqrt(mean_squared_error(y_test, y_pred)))
+print("MAE:", mean_absolute_error(y_test, y_pred))
