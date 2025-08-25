@@ -1,0 +1,65 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import KFold, train_test_split
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, AdaBoostRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+
+from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
+from catboost import CatBoostRegressor
+
+# --- Dummy dataset (replace with HPC data) ---
+X = np.random.rand(500, 8)
+y = 50 + 20*X[:,0] - 10*X[:,1] + np.random.randn(500) * 2
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# --- Base learners ---
+base_learners = {
+    'rf': RandomForestRegressor(n_estimators=200, random_state=42),
+    'gbm': GradientBoostingRegressor(n_estimators=200, random_state=42),
+    'xgb': XGBRegressor(n_estimators=200, random_state=42, verbosity=0),
+    'lgbm': LGBMRegressor(n_estimators=200, random_state=42, verbose=-1),
+    'cat': CatBoostRegressor(n_estimators=200, random_state=42, verbose=0),
+    'ada': AdaBoostRegressor(n_estimators=200, random_state=42)
+}
+
+# --- KFold for stacking ---
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+train_meta = pd.DataFrame(np.zeros((len(X_train), len(base_learners))), columns=base_learners.keys())
+test_meta  = pd.DataFrame(np.zeros((len(X_test), len(base_learners))), columns=base_learners.keys())
+
+# Out-of-fold predictions for training meta-model
+for name, model in base_learners.items():
+    oof_preds = np.zeros(len(X_train))
+    test_fold_preds = np.zeros((len(X_test), kf.n_splits))
+    
+    for i, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
+        X_tr, X_val = X_train[train_idx], X_train[val_idx]
+        y_tr, y_val = y_train[train_idx], y_train[val_idx]
+        
+        model.fit(X_tr, y_tr)
+        oof_preds[val_idx] = model.predict(X_val)
+        test_fold_preds[:, i] = model.predict(X_test)
+    
+    train_meta[name] = oof_preds
+    test_meta[name]  = test_fold_preds.mean(axis=1)  # average test preds over folds
+
+# --- Meta model (Linear Regression to extract weights) ---
+meta_model = LinearRegression(positive=True)
+meta_model.fit(train_meta, y_train)
+
+# Weights
+weights = pd.Series(meta_model.coef_, index=train_meta.columns)
+weights = weights / weights.sum()  # normalize
+print("\n--- Base Learner Weights (CV Stacking) ---")
+print(weights.sort_values(ascending=False))
+
+# --- Final Prediction ---
+final_pred = np.dot(test_meta.values, weights.values)
+
+# --- Evaluation ---
+print("\nR²:", r2_score(y_test, final_pred))
+print("RMSE:", np.sqrt(mean_squared_error(y_test, final_pred)))
+print("MAE:", mean_absolute_error(y_test, final_pred)))
