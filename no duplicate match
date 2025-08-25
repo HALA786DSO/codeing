@@ -1,0 +1,35 @@
+from sklearn.neighbors import NearestNeighbors
+import pandas as pd
+
+matched_df_list = []
+
+for gender in sample['gender_cd'].unique():
+    t_df = Treatment_df[Treatment_df['gender_cd'] == gender].copy()
+    c_df = Control_df[Control_df['gender_cd'] == gender].copy()
+
+    if len(t_df) == 0 or len(c_df) == 0:
+        continue
+
+    # keep track of available controls
+    available_controls = c_df.copy()
+
+    for _, row in t_df.iterrows():
+        if len(available_controls) < 2:
+            break  # not enough controls left
+
+        nn = NearestNeighbors(n_neighbors=2)
+        nn.fit(available_controls[['propensity_logit']])
+
+        distances, indices = nn.kneighbors([[row['propensity_logit']]])
+
+        matched_controls = available_controls.iloc[indices[0]]
+        matched_controls['matched_to'] = row['psuid']   # track mapping
+
+        # remove matched controls so they can't be reused
+        available_controls = available_controls.drop(matched_controls.index)
+
+        # add treated + matched controls together
+        matched_df_list.append(pd.concat([pd.DataFrame([row]), matched_controls]))
+
+# combine all matched data
+matched_df = pd.concat(matched_df_list, ignore_index=True)
