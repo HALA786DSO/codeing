@@ -1,17 +1,35 @@
-# Scatter points
-plt.scatter(X_train, y_train, color="blue", label="Train data")
-plt.scatter(X_test, y_test, color="green", label="Test data")
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 
-# Regression line (use full range of X)
-import numpy as np
-X_all = np.vstack((X_train, X_test))
-X_line = np.linspace(X_all.min(), X_all.max(), 100).reshape(-1,1)
-y_line = model.predict(X_line)
-plt.plot(X_line, y_line, color="red", linewidth=2, label="Regression line")
+# Fit model
+model = LinearRegression()
+model.fit(X_train, y_train)
 
-# Labels + R² in legend
-plt.xlabel("X")
-plt.ylabel("y")
-plt.title("Train/Test Data with Regression Line")
-plt.legend(title=f"R² train = {r2_train:.2f}, R² test = {r2_test:.2f}")
+# Predictions
+y_train_pred = model.predict(X_train)
+y_test_pred = model.predict(X_test)
+
+# R² scores
+r2_train = r2_score(y_train, y_train_pred)
+r2_test = r2_score(y_test, y_test_pred)
+
+# Plot y_true vs y_pred
+plt.figure(figsize=(7,6))
+
+# Train
+plt.scatter(y_train, y_train_pred, color="blue", alpha=0.6, label=f"Train (R²={r2_train:.2f})")
+
+# Test
+plt.scatter(y_test, y_test_pred, color="green", alpha=0.6, label=f"Test (R²={r2_test:.2f})")
+
+# Reference line (perfect prediction)
+min_val = min(y_train.min(), y_test.min(), y_train_pred.min(), y_test_pred.min())
+max_val = max(y_train.max(), y_test.max(), y_train_pred.max(), y_test_pred.max())
+plt.plot([min_val, max_val], [min_val, max_val], 'r--', lw=2, label="Perfect fit")
+
+plt.xlabel("Actual values")
+plt.ylabel("Predicted values")
+plt.title("Actual vs Predicted")
+plt.legend()
 plt.show()
