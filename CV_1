@@ -1,0 +1,74 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import KFold
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, AdaBoostRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+
+from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
+from catboost import CatBoostRegressor
+
+# --- Define base learners ---
+base_learners = {
+    'rf': RandomForestRegressor(n_estimators=200, random_state=42),
+    'gbm': GradientBoostingRegressor(n_estimators=200, random_state=42),
+    'xgb': XGBRegressor(n_estimators=200, random_state=42, verbosity=0),
+    'lgbm': LGBMRegressor(n_estimators=200, random_state=42, verbose=-1),
+    'cat': CatBoostRegressor(n_estimators=200, random_state=42, verbose=0),
+    'ada': AdaBoostRegressor(n_estimators=200, random_state=42)
+}
+
+def super_learner_cv(X_train, y_train, X_test=None, y_test=None, folds=5):
+    kf = KFold(n_splits=folds, shuffle=True, random_state=42)
+
+    train_meta = pd.DataFrame(np.zeros((len(X_train), len(base_learners))), columns=base_learners.keys())
+    test_meta  = pd.DataFrame(np.zeros((len(X_test), len(base_learners))) if X_test is not None else None, 
+                              columns=base_learners.keys()) if X_test is not None else None
+
+    # --- OOF training for each base learner ---
+    for name, model in base_learners.items():
+        oof_preds = np.zeros(len(X_train))
+        if X_test is not None:
+            test_fold_preds = np.zeros((len(X_test), folds))
+        
+        for i, (train_idx, val_idx) in enumerate(kf.split(X_train, y_train)):
+            X_tr, X_val = X_train[train_idx], X_train[val_idx]
+            y_tr, y_val = y_train[train_idx], y_train[val_idx]
+
+            model.fit(X_tr, y_tr)
+            oof_preds[val_idx] = model.predict(X_val)
+            
+            if X_test is not None:
+                test_fold_preds[:, i] = model.predict(X_test)
+
+        train_meta[name] = oof_preds
+        if X_test is not None:
+            test_meta[name]  = test_fold_preds.mean(axis=1)
+
+    # --- Meta model (Linear Regression with weights) ---
+    meta_model = LinearRegression(positive=True)
+    meta_model.fit(train_meta, y_train)
+
+    weights = pd.Series(meta_model.coef_, index=train_meta.columns)
+    weights = weights / weights.sum()
+
+    print("\n--- Base Learner Weights ---")
+    print(weights.sort_values(ascending=False))
+
+    # --- Final Prediction ---
+    if X_test is not None:
+        final_pred = np.dot(test_meta.values, weights.values)
+        print("\nR²:", r2_score(y_test, final_pred))
+        print("RMSE:", np.sqrt(mean_squared_error(y_test, final_pred)))
+        print("MAE:", mean_absolute_error(y_test, final_pred)))
+        return final_pred, weights
+    else:
+        return weights
+
+# --- Usage ---
+# If you have X_test, y_test:
+# preds, model_weights = super_learner_cv(X_train, y_train, X_test, y_test, folds=5)
+
+# If you only have training data:
+# model_weights = super_learner_cv(X_train, y_train, folds=5)
