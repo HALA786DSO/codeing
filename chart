@@ -1,0 +1,17 @@
+# Scatter points
+plt.scatter(X_train, y_train, color="blue", label="Train data")
+plt.scatter(X_test, y_test, color="green", label="Test data")
+
+# Regression line (use full range of X)
+import numpy as np
+X_all = np.vstack((X_train, X_test))
+X_line = np.linspace(X_all.min(), X_all.max(), 100).reshape(-1,1)
+y_line = model.predict(X_line)
+plt.plot(X_line, y_line, color="red", linewidth=2, label="Regression line")
+
+# Labels + R² in legend
+plt.xlabel("X")
+plt.ylabel("y")
+plt.title("Train/Test Data with Regression Line")
+plt.legend(title=f"R² train = {r2_train:.2f}, R² test = {r2_test:.2f}")
+plt.show()
