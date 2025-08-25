@@ -1,35 +1,39 @@
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
+import numpy as np
+from sklearn.metrics import mean_squared_error
 
-# Fit model
-model = LinearRegression()
-model.fit(X_train, y_train)
+# Residuals (errors)
+train_residuals = y_train - y_train_pred
+test_residuals  = y_test - y_test_pred
 
-# Predictions
-y_train_pred = model.predict(X_train)
-y_test_pred = model.predict(X_test)
+# RMSE values
+rmse_train = np.sqrt(mean_squared_error(y_train, y_train_pred))
+rmse_test  = np.sqrt(mean_squared_error(y_test, y_test_pred))
 
-# R² scores
-r2_train = r2_score(y_train, y_train_pred)
-r2_test = r2_score(y_test, y_test_pred)
+plt.figure(figsize=(8,6))
 
-# Plot y_true vs y_pred
-plt.figure(figsize=(7,6))
+# Train residuals
+plt.scatter(y_train, train_residuals, color="blue", alpha=0.6, label=f"Train (RMSE={rmse_train:.4f})")
 
-# Train
-plt.scatter(y_train, y_train_pred, color="blue", alpha=0.6, label=f"Train (R²={r2_train:.2f})")
+# Test residuals
+plt.scatter(y_test, test_residuals, color="green", alpha=0.6, label=f"Test (RMSE={rmse_test:.4f})")
 
-# Test
-plt.scatter(y_test, y_test_pred, color="green", alpha=0.6, label=f"Test (R²={r2_test:.2f})")
-
-# Reference line (perfect prediction)
-min_val = min(y_train.min(), y_test.min(), y_train_pred.min(), y_test_pred.min())
-max_val = max(y_train.max(), y_test.max(), y_train_pred.max(), y_test_pred.max())
-plt.plot([min_val, max_val], [min_val, max_val], 'r--', lw=2, label="Perfect fit")
+# Zero error line
+plt.axhline(0, color="red", linestyle="--", linewidth=2)
 
 plt.xlabel("Actual values")
-plt.ylabel("Predicted values")
-plt.title("Actual vs Predicted")
+plt.ylabel("Residuals (y - y_pred)")
+plt.title("Residual Plot (Error vs Actual)")
+plt.legend()
+plt.show()
+
+
+plt.figure(figsize=(8,6))
+plt.hist(train_residuals, bins=30, alpha=0.6, color="blue", label="Train residuals")
+plt.hist(test_residuals, bins=30, alpha=0.6, color="green", label="Test residuals")
+plt.axvline(0, color="red", linestyle="--")
+plt.title("Distribution of Residuals")
+plt.xlabel("Error (y - y_pred)")
+plt.ylabel("Frequency")
 plt.legend()
 plt.show()
