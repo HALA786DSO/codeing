@@ -1,0 +1,20 @@
+import pandas as pd
+import numpy as np
+
+def standardized_mean_diff(df, treat_col, covariates):
+    treated = df[df[treat_col]==1]
+    control = df[df[treat_col]==0]
+
+    smd = {}
+    for cov in covariates:
+        mean_t = treated[cov].mean()
+        mean_c = control[cov].mean()
+        var_t = treated[cov].var()
+        var_c = control[cov].var()
+
+        smd[cov] = (mean_t - mean_c) / np.sqrt((var_t + var_c) / 2)
+    return pd.Series(smd)
+
+# Example
+smd_results = standardized_mean_diff(matched_df, "treatment", ["age","bmi","bp"])
+print(smd_results)
