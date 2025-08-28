@@ -18,3 +18,20 @@ def standardized_mean_diff(df, treat_col, covariates):
 # Example
 smd_results = standardized_mean_diff(matched_df, "treatment", ["age","bmi","bp"])
 print(smd_results)
+
+
+import matplotlib.pyplot as plt
+
+smd_before = standardized_mean_diff(original_df, "treatment", ["age","bmi","bp"])
+smd_after = standardized_mean_diff(matched_df, "treatment", ["age","bmi","bp"])
+
+plt.figure(figsize=(6,4))
+plt.scatter(smd_before.index, smd_before.values, label="Before Matching", color="red")
+plt.scatter(smd_after.index, smd_after.values, label="After Matching", color="blue")
+plt.axhline(0.1, color="gray", linestyle="--")
+plt.axhline(-0.1, color="gray", linestyle="--")
+plt.xticks(rotation=45)
+plt.ylabel("Standardized Mean Difference")
+plt.legend()
+plt.show()
+
