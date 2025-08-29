@@ -1,0 +1,11 @@
+# Option 1 (using idxmin)
+idx = df_filter.groupby("psuid")["mae_error"].idxmin()
+result = df_filter.loc[idx].reset_index(drop=True)
+
+
+
+# Option 2 (robust way using sort + drop_duplicates)
+result = (df_filter
+          .sort_values(["psuid", "mae_error"])
+          .drop_duplicates("psuid", keep="first")
+          .reset_index(drop=True))
