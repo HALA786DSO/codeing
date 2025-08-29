@@ -76,3 +76,40 @@ for gender in sample['gender_cd'].unique():
 matched_df = pd.concat(matched_df_list, ignore_index=True)
 
 
+
+
+
+####nw
+
+from sklearn.neighbors import NearestNeighbors
+import pandas as pd
+
+# Example: caliper = 0.2 * SD(logit PS)
+caliper = 0.2 * sample["propensity_logit"].std()
+
+# Fit on controls
+nn = NearestNeighbors(n_neighbors=2)   # 2 matches per treated
+nn.fit(c_df[["propensity_logit"]])
+
+# Get distances + indices
+distances, indices = nn.kneighbors(t_df[["propensity_logit"]])
+
+# Build matched pairs list
+matched_list = []
+
+for i, treat_row in t_df.iterrows():
+    for j in range(2):  # loop over both neighbors
+        if distances[i, j] <= caliper:   # keep only if within caliper
+            control_row = c_df.iloc[indices[i, j]]
+            
+            pair = pd.concat([
+                treat_row.to_frame().T.reset_index(drop=True),
+                control_row.to_frame().T.reset_index(drop=True)
+            ], axis=1)
+            
+            matched_list.append(pair)
+
+# Final matched dataframe
+matched_pairs = pd.concat(matched_list, ignore_index=True)
+
+
