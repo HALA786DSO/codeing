@@ -19,3 +19,14 @@ def plot_age_histogram(df, psuid_value):
     plt.legend()
     plt.grid(alpha=0.3)
     plt.show()
+
+
+
+agg = df.groupby(['psuid', 'grp_binary']).agg(
+    amt_2022_sum = ('amt_2022', 'sum'),
+    amt_2024_sum = ('amt_2024', 'sum'),
+    members = ('sub_id', 'count')
+).reset_index()
+
+# CAGR per group
+agg['cagr'] = ((agg['amt_2024_sum'] / agg['amt_2022_sum']) ** (1/2)) - 1
