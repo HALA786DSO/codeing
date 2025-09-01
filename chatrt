@@ -1,0 +1,25 @@
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def plot_psuid_cagr(comparison, psuid_value):
+    # filter one psuid
+    psuid_df = comparison[comparison['psuid'] == psuid_value]
+
+    # reshape for plotting
+    plot_df = psuid_df.melt(
+        id_vars=['age_bucket','gender'],
+        value_vars=['cagr_control','cagr_treated'],
+        var_name='group',
+        value_name='cagr'
+    )
+
+    # bar chart
+    plt.figure(figsize=(10,6))
+    sns.barplot(data=plot_df, x='age_bucket', y='cagr', hue='group', palette="Set2")
+
+    plt.title(f"CAGR Comparison for psuid {psuid_value}")
+    plt.xlabel("Age Bucket")
+    plt.ylabel("CAGR")
+    plt.legend(title="")
+    plt.grid(alpha=0.3)
+    plt.show()
