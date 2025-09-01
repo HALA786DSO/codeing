@@ -1,0 +1,21 @@
+import matplotlib.pyplot as plt
+
+def plot_age_histogram(df, psuid_value):
+    # Filter for given psuid
+    df_psuid = df[df['psuid'] == psuid_value]
+
+    # Separate groups
+    grp0 = df_psuid[df_psuid['grp_binary'] == 0]['age']
+    grp1 = df_psuid[df_psuid['grp_binary'] == 1]['age']
+
+    # Plot histogram
+    plt.figure(figsize=(8, 5))
+    plt.hist(grp0, bins=20, alpha=0.6, label='Group 0')
+    plt.hist(grp1, bins=20, alpha=0.6, label='Group 1')
+
+    plt.title(f"Age Distribution for psuid {psuid_value}")
+    plt.xlabel("Age")
+    plt.ylabel("Count")
+    plt.legend()
+    plt.grid(alpha=0.3)
+    plt.show()
