@@ -30,3 +30,55 @@ agg = df.groupby(['psuid', 'grp_binary']).agg(
 
 # CAGR per group
 agg['cagr'] = ((agg['amt_2024_sum'] / agg['amt_2022_sum']) ** (1/2)) - 1
+
+
+
+
+import matplotlib.pyplot as plt
+
+def plot_cagr_comparison(comparison):
+    # melt for plotting
+    plot_df = comparison.melt(
+        id_vars=['psuid','gender','age_bucket'],
+        value_vars=['cagr_control','cagr_treated'],
+        var_name='group',
+        value_name='cagr'
+    )
+    
+    # plot
+    plt.figure(figsize=(10,6))
+    for key, grp in plot_df.groupby(['psuid']):
+        grp_key = f"psuid {key}"
+        grp.pivot(index=['age_bucket','gender'], columns='group', values='cagr').plot(
+            kind='bar', figsize=(10,6), title=grp_key
+        )
+        plt.ylabel("CAGR")
+        plt.xlabel("Age Bucket & Gender")
+        plt.xticks(rotation=45)
+        plt.legend(["Control","Treated"])
+        plt.tight_layout()
+        plt.show()
+
+
+
+
+
+import seaborn as sns
+
+def plot_cagr_line(comparison):
+    plot_df = comparison.melt(
+        id_vars=['psuid','gender','age_bucket'],
+        value_vars=['cagr_control','cagr_treated'],
+        var_name='group',
+        value_name='cagr'
+    )
+
+    plt.figure(figsize=(10,6))
+    sns.lineplot(data=plot_df, x='age_bucket', y='cagr', hue='group', style='gender', markers=True)
+    plt.title("CAGR Treated vs Control by Age Bucket & Gender")
+    plt.ylabel("CAGR")
+    plt.xlabel("Age Bucket")
+    plt.legend(title="")
+    plt.grid(alpha=0.3)
+    plt.show()
+
