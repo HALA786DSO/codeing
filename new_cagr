@@ -1,0 +1,31 @@
+import pandas as pd
+import numpy as np
+
+def calculate_cagr_by_match(matched_data_single_psuid, raw_data):
+    # merge in the claim fields you need
+    cols = ['subscriber_id','member_id',
+            'clm_allowed_amt_pre_2year','clm_allowed_amt_year',
+            'capped_amt_2022','capped_amt_2024']
+    df = matched_data_single_psuid.merge(raw_data[cols], on='subscriber_id', how='left')
+
+    # keep only the matched controls; treated row is grp_binary==1
+    ctrl = df[df['grp_binary'] == 0].copy()
+
+    # aggregate per match_flag (Match_1..Match_5) – no PairID needed since you're already on one psuid
+    agg = (ctrl.groupby('match_flag', as_index=False)
+                .agg(pre=('clm_allowed_amt_pre_2year','sum'),
+                     post=('clm_allowed_amt_year','sum'),
+                     cap22=('capped_amt_2022','sum'),
+                     cap24=('capped_amt_2024','sum'),
+                     n=('member_id','count')))
+
+    # safe CAGR calculations (avoid div-by-zero)
+    agg['cagr'] = np.where(agg['pre']>0, (agg['post']/agg['n'])/(agg['pre']/agg['n']), np.nan)
+    agg['capped_cagr'] = np.where(agg['cap22']>0, (agg['cap24']/agg['n'])/(agg['cap22']/agg['n']), np.nan)
+
+    # optional: sort in Match_1..Match_5 order
+    agg['match_num'] = agg['match_flag'].str.extract(r'(\d+)').astype(float)
+    agg = agg.sort_values('match_num').drop(columns='match_num')
+
+    # you now have 5 predicted CAGRs (one per match)
+    return agg[['match_flag','cagr','capped_cagr','n']]
