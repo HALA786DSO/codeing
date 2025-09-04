@@ -1,0 +1,32 @@
+matched_df_list = []
+
+for gender in sample['gender_cd'].unique():
+    t_df = Treatment_df[Treatment_df['gender_cd'] == gender]
+    c_df = Control_df[Control_df['gender_cd'] == gender]
+
+    if len(t_df) == 0 or len(c_df) == 0:
+        continue
+
+    nn = NearestNeighbors(n_neighbors=2)
+    nn.fit(c_df[['propensity_logit']])
+
+    distances, indices = nn.kneighbors(t_df[['propensity_logit']])
+
+    # Build mapping: each treated with its two matches
+    for i, t_row in t_df.iterrows():
+        matched_controls = c_df.iloc[indices[i]]
+
+        matched_controls = matched_controls.copy()
+        matched_controls['match_flag'] = ['Match_1', 'Match_2']
+        matched_controls['treated_sub_id'] = t_row['subscriber_id']
+
+        t_row_df = t_row.to_frame().T
+        t_row_df['match_flag'] = 'Treated'
+        t_row_df['treated_sub_id'] = t_row['subscriber_id']
+
+        # combine treated + its two matches
+        matched_set = pd.concat([t_row_df, matched_controls])
+        matched_df_list.append(matched_set)
+
+# Final matched dataframe
+matched_df = pd.concat(matched_df_list, ignore_index=True)
