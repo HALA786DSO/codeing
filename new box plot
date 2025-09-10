@@ -1,0 +1,28 @@
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+
+# Prepare data for plotting
+df_long = pd.melt(
+    df_result,
+    id_vars=["run"],
+    value_vars=["rmse_train", "rmse_test"],
+    var_name="Type",
+    value_name="RMSE"
+)
+
+# Rename for nicer labels
+df_long["Type"] = df_long["Type"].map({
+    "rmse_train": "Train RMSE",
+    "rmse_test": "Test RMSE"
+})
+
+# Boxplot + swarmplot
+plt.figure(figsize=(7,5))
+sns.boxplot(x="Type", y="RMSE", data=df_long, palette="Set2")
+sns.stripplot(x="Type", y="RMSE", data=df_long, color="black", alpha=0.6, jitter=True)
+
+plt.title("Train vs Test RMSE across 30 Bootstrap Runs", fontsize=14)
+plt.ylabel("RMSE")
+plt.xlabel("")
+plt.show()
