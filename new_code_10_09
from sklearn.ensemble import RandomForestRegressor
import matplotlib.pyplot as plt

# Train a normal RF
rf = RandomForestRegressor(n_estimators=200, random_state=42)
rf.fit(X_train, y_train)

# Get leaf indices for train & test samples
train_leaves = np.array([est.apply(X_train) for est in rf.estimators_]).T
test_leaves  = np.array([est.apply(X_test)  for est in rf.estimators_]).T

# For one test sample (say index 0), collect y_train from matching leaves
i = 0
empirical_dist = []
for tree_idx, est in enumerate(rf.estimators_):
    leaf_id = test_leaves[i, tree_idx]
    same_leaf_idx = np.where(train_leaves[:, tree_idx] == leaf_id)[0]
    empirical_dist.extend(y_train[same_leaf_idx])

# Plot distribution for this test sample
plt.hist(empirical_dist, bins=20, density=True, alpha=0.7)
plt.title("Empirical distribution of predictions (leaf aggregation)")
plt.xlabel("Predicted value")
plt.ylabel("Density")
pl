@@ -1,0 +1,26 @@
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+import matplotlib.pyplot as plt
+
+# Train a normal RF
+rf = RandomForestRegressor(n_estimators=200, random_state=42)
+rf.fit(X_train, y_train)
+
+# Get leaf indices for train & test samples
+train_leaves = np.array([est.apply(X_train) for est in rf.estimators_]).T
+test_leaves  = np.array([est.apply(X_test)  for est in rf.estimators_]).T
+
+# For one test sample (say index 0), collect y_train from matching leaves
+i = 0
+empirical_dist = []
+for tree_idx, est in enumerate(rf.estimators_):
+    leaf_id = test_leaves[i, tree_idx]
+    same_leaf_idx = np.where(train_leaves[:, tree_idx] == leaf_id)[0]
+    empirical_dist.extend(y_train[same_leaf_idx])
+
+# Plot distribution for this test sample
+plt.hist(empirical_dist, bins=20, density=True, alpha=0.7)
+plt.title("Empirical distribution of predictions (leaf aggregation)")
+plt.xlabel("Predicted value")
+plt.ylabel("Density")
+plt.show()
