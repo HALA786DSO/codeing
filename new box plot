@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+huimport matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
@@ -21,6 +21,58 @@ df_long["Type"] = df_long["Type"].map({
 plt.figure(figsize=(7,5))
 sns.boxplot(x="Type", y="RMSE", data=df_long, palette="Set2")
 sns.stripplot(x="Type", y="RMSE", data=df_long, color="black", alpha=0.6, jitter=True)
+
+plt.title("Train vs Test RMSE across 30 Bootstrap Runs", fontsize=14)
+plt.ylabel("RMSE")
+plt.xlabel("")
+plt.show()
+
+
+
+
+
+-------------
+
+
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import numpy as np
+
+# Convert your df_result to long format
+df_long = pd.melt(
+    df_result,
+    id_vars=["run"],
+    value_vars=["rmse_train", "rmse_test"],
+    var_name="Type",
+    value_name="RMSE"
+)
+
+# Rename for nicer labels
+df_long["Type"] = df_long["Type"].map({
+    "rmse_train": "Train RMSE",
+    "rmse_test": "Test RMSE"
+})
+
+# Calculate mean ± 95% CI
+summary_stats = df_long.groupby("Type")["RMSE"].agg(["mean", "std", "count"])
+summary_stats["ci95"] = 1.96 * summary_stats["std"] / np.sqrt(summary_stats["count"])
+
+# Plot boxplot + stripplot
+plt.figure(figsize=(7,5))
+sns.boxplot(x="Type", y="RMSE", data=df_long, palette="Set2")
+sns.stripplot(x="Type", y="RMSE", data=df_long, color="black", alpha=0.6, jitter=True)
+
+# Add text annotations for mean ± CI
+for i, row in enumerate(summary_stats.itertuples()):
+    mean = row.mean
+    ci = row.ci95
+    plt.text(
+        i, mean + 0.0005,  # place text slightly above mean
+        f"Mean={mean:.4f}\n95% CI ±{ci:.4f}",
+        ha="center", va="bottom", fontsize=10, fontweight="bold", color="black"
+    )
 
 plt.title("Train vs Test RMSE across 30 Bootstrap Runs", fontsize=14)
 plt.ylabel("RMSE")
