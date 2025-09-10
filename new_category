@@ -1,15 +1,60 @@
-# Step 1: Fit GMM on y_train
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.mixture import GaussianMixture
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+
+# =======================
+# Assume you already have:
+# X_train, X_test = pandas DataFrames
+# y_train, y_test = pandas Series
+# =======================
+
+# ---- Step 1: Fit GMM on y_train to find 2 peaks ----
 y_train_np = y_train.values.reshape(-1, 1)   # convert Series to numpy
 gmm = GaussianMixture(n_components=2, random_state=0)
-labels = gmm.fit_predict(y_train_np)   # cluster assignments (0/1)
+labels = gmm.fit_predict(y_train_np)   # cluster assignments (0 or 1)
 
-# Step 2: Train classifier to predict peak
+# ---- Step 2: Train classifier to predict peak from X ----
 clf = RandomForestClassifier(n_estimators=200, random_state=0)
 clf.fit(X_train, labels)
 
-# Step 3: Train one regressor per peak
+# ---- Step 3: Train one regressor per peak ----
 reg0 = RandomForestRegressor(n_estimators=200, random_state=0)
 reg1 = RandomForestRegressor(n_estimators=200, random_state=0)
 
 reg0.fit(X_train[labels==0], y_train[labels==0])
 reg1.fit(X_train[labels==1], y_train[labels==1])
+
+# ---- Step 4: Predictions on X_test ----
+mode_probs = clf.predict_proba(X_test)   # probabilities of peak 0/1
+mu0 = reg0.predict(X_test)
+mu1 = reg1.predict(X_test)
+
+# Option A: Mixture mean prediction (unimodal, average)
+mixture_mean = mode_probs[:,0]*mu0 + mode_probs[:,1]*mu1
+
+# Option B: Sample-based predictions (can show bimodality)
+rng = np.random.RandomState(42)
+samples = []
+for i in range(len(X_test)):
+    # sample 20 predictions per test sample
+    for _ in range(20):
+        comp = rng.choice([0,1], p=mode_probs[i])
+        samples.append(mu0[i] if comp==0 else mu1[i])
+
+samples = np.array(samples)
+
+# ---- Step 5: Plot predicted vs actual distribution ----
+plt.figure(figsize=(10,5))
+
+sns.histplot(samples, bins=30, kde=True, color="blue", stat="density", alpha=0.6, label="Predicted (sampled)")
+sns.histplot(y_test, bins=30, kde=True, color="orange", stat="density", alpha=0.6, label="Actual")
+
+plt.xlabel("CAGR")
+plt.ylabel("Density")
+plt.title("Predicted vs Actual Distribution (GMM + Regressors)")
+plt.legend()
+plt.show()
