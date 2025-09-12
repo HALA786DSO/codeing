@@ -1,0 +1,22 @@
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+import pandas as pd
+
+# Run LDA with 1 discriminant
+lda = LinearDiscriminantAnalysis(n_components=1)
+X_lda = lda.fit_transform(X, y)   # X = your features, y = your flag column ("above_2"/"below_2")
+
+# Put into DataFrame for easy plotting
+df_lda = pd.DataFrame({
+    "LD1": X_lda.ravel(),
+    "Class": y
+})
+
+# Plot histograms or density plot
+plt.figure(figsize=(8,6))
+sns.histplot(data=df_lda, x="LD1", hue="Class", element="step", stat="density", common_norm=False, bins=25)
+plt.xlabel("LD1 (Linear Discriminant 1)")
+plt.ylabel("Density")
+plt.title("LDA Projection: above_2 vs below_2")
+plt.show()
