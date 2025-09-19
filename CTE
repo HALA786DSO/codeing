@@ -1,0 +1,22 @@
+with rep_market as (
+  select 
+      primary_rep_aid,
+      market,
+      count(*) as cnt
+  from anbc_hcb_prod.msa_sales_de_hcb_prod_esfdc_salesforce_main_hdp_pp
+  where UPPER(TRIM(product_type)) = 'MEDICAL'
+    and effective_date_year = 2024
+  group by primary_rep_aid, market
+),
+rep_summary as (
+  select
+      primary_rep_aid,
+      sum(cnt) as total_cnt,
+      max(cnt) as max_market_cnt
+  from rep_market
+  group by primary_rep_aid
+)
+select r.*
+from rep_market r
+join rep_summary s on r.primary_rep_aid = s.primary_rep_aid
+where s.max_market_cnt * 1.0 / s.total_cnt between 0.4 and 0.6   -- adjust threshold
