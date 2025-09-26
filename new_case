@@ -1,0 +1,19 @@
+CASE 
+  WHEN Fund Type = "ASC" THEN
+      CASE 
+        WHEN Segment = "Select" THEN SUM(Member Count) * 2.5
+        WHEN Segment = "Ket"    THEN SUM(Member Count) * 3.0
+        WHEN Segment = "ABC"    THEN SUM(Member Count) * 4.2
+        WHEN Segment = "XYZ"    THEN SUM(Member Count) * 1.8
+        ELSE 0
+      END
+  WHEN Fund Type = "Risk" THEN
+      CASE 
+        WHEN Segment = "Select" THEN SUM(Member Count) * 1.5
+        WHEN Segment = "Ket"    THEN SUM(Member Count) * 2.1
+        WHEN Segment = "ABC"    THEN SUM(Member Count) * 2.8
+        WHEN Segment = "XYZ"    THEN SUM(Member Count) * 0.9
+        ELSE 0
+      END
+  ELSE 0
+END
