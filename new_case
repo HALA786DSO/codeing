@@ -1,19 +1,15 @@
-CASE 
-  WHEN Fund Type = "ASC" THEN
-      CASE 
-        WHEN Segment = "Select" THEN SUM(Member Count) * 2.5
-        WHEN Segment = "Ket"    THEN SUM(Member Count) * 3.0
-        WHEN Segment = "ABC"    THEN SUM(Member Count) * 4.2
-        WHEN Segment = "XYZ"    THEN SUM(Member Count) * 1.8
-        ELSE 0
-      END
-  WHEN Fund Type = "Risk" THEN
-      CASE 
-        WHEN Segment = "Select" THEN SUM(Member Count) * 1.5
-        WHEN Segment = "Ket"    THEN SUM(Member Count) * 2.1
-        WHEN Segment = "ABC"    THEN SUM(Member Count) * 2.8
-        WHEN Segment = "XYZ"    THEN SUM(Member Count) * 0.9
-        ELSE 0
-      END
-  ELSE 0
-END
+SUM(
+  CASE 
+    WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Select'           THEN sf_total_members * 46.77
+    WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Small Group'      THEN sf_total_members * 31.36
+    WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Public & Labor'   THEN sf_total_members * 23.87
+    WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Key'              THEN sf_total_members * 31.32
+    WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'National Accounts' THEN sf_total_members * 27.88
+    WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Select'           THEN sf_total_members * 51.06
+    WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Small Group'      THEN sf_total_members * 48.60
+    WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Public & Labor'   THEN sf_total_members * 26.99
+    WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Key'              THEN sf_total_members * 42.75
+    WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'National Accounts' THEN sf_total_members * 77.80
+    ELSE 0
+  END
+)
