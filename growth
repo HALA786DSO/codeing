@@ -1,0 +1,4 @@
+(SUM(CASE WHEN Year = 2025 THEN Unique_User_Login END) -
+ SUM(CASE WHEN Year = 2024 THEN Unique_User_Login END))
+ /
+ SUM(CASE WHEN Year = 2024 THEN Unique_User_Login END)
