@@ -1,37 +1,33 @@
 CASE 
   WHEN product_tag = 'DEN' THEN 
-    SUM(
-      CASE 
-        WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Select' THEN sf_total_members * 12 * 6.96488033553607
-        WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Small Group' THEN sf_total_members * 12 * 0
-        WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Public & Labor' THEN sf_total_members * 12 * 1.48971704827197
-        WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Key' THEN sf_total_members * 12 * 2.976363234773
-        WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'National Accounts' THEN sf_total_members * 12 * 2.09547438649674
-        WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Select' THEN sf_total_members * 12 * 6.78837774787828
-        WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Small Group' THEN sf_total_members * 12 * 10.016777089872
-        WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Public & Labor' THEN sf_total_members * 12 * 1.36995947041121
-        WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Key' THEN sf_total_members * 12 * 6.99573318952963
-        WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'National Accounts' THEN sf_total_members * 12 * 4.44411396245682
-        ELSE 0
-      END
-    )
+    CASE 
+      WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Select' THEN sf_total_members * 12 * 6.96488033553607
+      WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Small Group' THEN sf_total_members * 12 * 0
+      WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Public & Labor' THEN sf_total_members * 12 * 1.48971704827197
+      WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Key' THEN sf_total_members * 12 * 2.976363234773
+      WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'National Accounts' THEN sf_total_members * 12 * 2.09547438649674
+      WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Select' THEN sf_total_members * 12 * 6.78837774787828
+      WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Small Group' THEN sf_total_members * 12 * 10.016777089872
+      WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Public & Labor' THEN sf_total_members * 12 * 1.36995947041121
+      WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Key' THEN sf_total_members * 12 * 6.99573318952963
+      WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'National Accounts' THEN sf_total_members * 12 * 4.44411396245682
+      ELSE 0
+    END
 
   WHEN product_tag = 'VIS' THEN 
-    SUM(
-      CASE 
-        WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Select' THEN sf_total_members * 12 * 0
-        WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Small Group' THEN sf_total_members * 12 * 0
-        WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Public & Labor' THEN sf_total_members * 12 * 0.42354149140547
-        WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Key' THEN sf_total_members * 12 * 0.38580826486065
-        WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'National Accounts' THEN sf_total_members * 12 * 0.194420533794711
-        WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Select' THEN sf_total_members * 12 * 1.971477338484952
-        WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Small Group' THEN sf_total_members * 12 * 2.9659671237425
-        WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Public & Labor' THEN sf_total_members * 12 * 1.42563809014848
-        WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Key' THEN sf_total_members * 12 * 1.59054977517125
-        WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'National Accounts' THEN sf_total_members * 12 * 0.937765907330812
-        ELSE 0
-      END
-    )
+    CASE 
+      WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Select' THEN sf_total_members * 12 * 0
+      WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Small Group' THEN sf_total_members * 12 * 0
+      WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Public & Labor' THEN sf_total_members * 12 * 0.42354149140547
+      WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'Key' THEN sf_total_members * 12 * 0.38580826486065
+      WHEN sf_fund_type = 'ASC' AND sf_business_segment_sfdc = 'National Accounts' THEN sf_total_members * 12 * 0.194420533794711
+      WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Select' THEN sf_total_members * 12 * 1.971477338484952
+      WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Small Group' THEN sf_total_members * 12 * 2.9659671237425
+      WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Public & Labor' THEN sf_total_members * 12 * 1.42563809014848
+      WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'Key' THEN sf_total_members * 12 * 1.59054977517125
+      WHEN sf_fund_type = 'Risk' AND sf_business_segment_sfdc = 'National Accounts' THEN sf_total_members * 12 * 0.937765907330812
+      ELSE 0
+    END
 
   ELSE 0
 END
