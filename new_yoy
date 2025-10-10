@@ -2,8 +2,13 @@
   COUNT_DISTINCT(
     CASE 
       WHEN EXTRACT(YEAR FROM logged_date) = EXTRACT(YEAR FROM CURRENT_DATE())
-           AND EXTRACT(MONTH FROM logged_date) <= EXTRACT(MONTH FROM CURRENT_DATE())
-           AND EXTRACT(DAY FROM logged_date) <= EXTRACT(DAY FROM CURRENT_DATE())
+           AND (
+             EXTRACT(MONTH FROM logged_date) < EXTRACT(MONTH FROM CURRENT_DATE())
+             OR (
+               EXTRACT(MONTH FROM logged_date) = EXTRACT(MONTH FROM CURRENT_DATE())
+               AND EXTRACT(DAY FROM logged_date) <= EXTRACT(DAY FROM CURRENT_DATE())
+             )
+           )
       THEN user_id 
     END
   )
@@ -11,8 +16,13 @@
   COUNT_DISTINCT(
     CASE 
       WHEN EXTRACT(YEAR FROM logged_date) = EXTRACT(YEAR FROM CURRENT_DATE()) - 1
-           AND EXTRACT(MONTH FROM logged_date) <= EXTRACT(MONTH FROM CURRENT_DATE())
-           AND EXTRACT(DAY FROM logged_date) <= EXTRACT(DAY FROM CURRENT_DATE())
+           AND (
+             EXTRACT(MONTH FROM logged_date) < EXTRACT(MONTH FROM CURRENT_DATE())
+             OR (
+               EXTRACT(MONTH FROM logged_date) = EXTRACT(MONTH FROM CURRENT_DATE())
+               AND EXTRACT(DAY FROM logged_date) <= EXTRACT(DAY FROM CURRENT_DATE())
+             )
+           )
       THEN user_id 
     END
   )
@@ -21,8 +31,13 @@
 COUNT_DISTINCT(
   CASE 
     WHEN EXTRACT(YEAR FROM logged_date) = EXTRACT(YEAR FROM CURRENT_DATE()) - 1
-         AND EXTRACT(MONTH FROM logged_date) <= EXTRACT(MONTH FROM CURRENT_DATE())
-         AND EXTRACT(DAY FROM logged_date) <= EXTRACT(DAY FROM CURRENT_DATE())
+         AND (
+           EXTRACT(MONTH FROM logged_date) < EXTRACT(MONTH FROM CURRENT_DATE())
+           OR (
+             EXTRACT(MONTH FROM logged_date) = EXTRACT(MONTH FROM CURRENT_DATE())
+             AND EXTRACT(DAY FROM logged_date) <= EXTRACT(DAY FROM CURRENT_DATE())
+           )
+         )
     THEN user_id 
   END
 )
