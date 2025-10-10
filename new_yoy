@@ -1,0 +1,25 @@
+(
+  COUNT_DISTINCT(
+    CASE 
+      WHEN EXTRACT(YEAR FROM logged_date) = 2025 
+           AND logged_date <= CURRENT_DATE()
+      THEN user_id 
+    END
+  )
+  -
+  COUNT_DISTINCT(
+    CASE 
+      WHEN EXTRACT(YEAR FROM logged_date) = 2024 
+           AND EXTRACT(DATE FROM logged_date) <= DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR)
+      THEN user_id 
+    END
+  )
+)
+/
+COUNT_DISTINCT(
+  CASE 
+    WHEN EXTRACT(YEAR FROM logged_date) = 2024 
+         AND EXTRACT(DATE FROM logged_date) <= DATE_SUB(CURRENT_DATE(), INTERVAL 1 YEAR)
+    THEN user_id 
+  END
+)
