@@ -1,0 +1,25 @@
+WITH base AS (
+  SELECT
+    user_id,
+    logged_datetime,
+    -- Sort each user's logins
+    LAG(logged_datetime) OVER (PARTITION BY user_id ORDER BY logged_datetime) AS prev_login
+  FROM your_table
+),
+marked AS (
+  SELECT
+    user_id,
+    logged_datetime,
+    -- Mark new login event if no previous one or if >1 hour gap
+    CASE
+      WHEN prev_login IS NULL THEN 1
+      WHEN TIMESTAMP_DIFF(logged_datetime, prev_login, MINUTE) > 60 THEN 1
+      ELSE 0
+    END AS new_login_flag
+  FROM base
+)
+SELECT
+  user_id,
+  COUNTIF(new_login_flag = 1) AS unique_logins
+FROM marked
+GROUP BY user_id;
