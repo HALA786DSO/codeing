@@ -1,0 +1,33 @@
+def download_from_gcs(**kwargs):
+
+    from google.cloud import storage
+    import google.auth
+    from google.auth import impersonated_credentials
+
+    bucket_name = kwargs['bucket_name']
+    folder_name = kwargs['folder_name']
+    file_name = kwargs['file_name']
+    resource_sa = kwargs['resource_sa']
+
+    source_blob = f"{folder_name}/{file_name}.csv"
+
+    destination_file = f"/tmp/{file_name}.csv"
+
+    # impersonation
+    credentials, project = google.auth.default()
+
+    target_credentials = impersonated_credentials.Credentials(
+        source_credentials=credentials,
+        target_principal=resource_sa,
+        target_scopes=["https://www.googleapis.com/auth/cloud-platform"],
+    )
+
+    client = storage.Client(credentials=target_credentials)
+
+    bucket = client.bucket(bucket_name)
+
+    blob = bucket.blob(source_blob)
+
+    blob.download_to_filename(destination_file)
+
+    print("File downloaded to:", destination_file)
