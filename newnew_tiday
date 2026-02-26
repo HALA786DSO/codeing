@@ -1,0 +1,44 @@
+Allowed Amount =
+VAR selected_cat =
+    SELECTEDVALUE(Slicer_Table[cat])
+
+RETURN
+CALCULATE(
+
+    SUM(MainTable[aa_2021]),
+
+    FILTER(
+        MainTable,
+
+        (
+            selected_cat = "IVG"
+            && MainTable[cat] = "CTG"
+            && MainTable[cohort] = "syn_twin"
+        )
+
+        ||
+
+        (
+            selected_cat = "CTG"
+            && MainTable[cat] = "CTG"
+            && MainTable[cohort] = "syn_twin"
+        )
+
+        ||
+
+        (
+            selected_cat = "IVG"
+            && MainTable[cat] = "IVG"
+            && MainTable[cohort] = "syn_twin"
+        )
+
+        ||
+
+        (
+            selected_cat = "CTG"
+            && MainTable[cohort] = "na_avg"
+        )
+
+    )
+
+)
