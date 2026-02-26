@@ -1,0 +1,30 @@
+dynamic_cohort =
+
+VAR scenario =
+SELECTEDVALUE('Scenario Table'[Scenario])
+
+RETURN
+
+SWITCH(
+TRUE(),
+
+scenario = "IVG"
+&& '2025_genesis_results'[Play] = "CTG"
+&& '2025_genesis_results'[Cohort] = "syn_twin",
+"Medical Only",
+
+scenario = "IVG"
+&& '2025_genesis_results'[Play] = "IVG"
+&& '2025_genesis_results'[Cohort] = "syn_twin",
+"Medical+Rx",
+
+scenario = "CTG"
+&& '2025_genesis_results'[Play] = "CTG"
+&& '2025_genesis_results'[Cohort] = "syn_twin",
+"Synthetic Twin",
+
+scenario = "CTG"
+&& '2025_genesis_results'[Play] = "CTG"
+&& '2025_genesis_results'[Cohort] = "na_avg",
+"Aetna - SI BOB"
+)
