@@ -1,0 +1,27 @@
+Mapping_Table =
+DATATABLE(
+    "Slicer", STRING,
+    "cat", STRING,
+    "cohort", STRING,
+    "Output", STRING,
+    {
+        {"IVG","CTG","syn_twin","medical"},
+        {"CTG","CTG","syn_twin","swin"},
+        {"IVG","IVG","syn_twin","medical+rx"},
+        {"CTG","CTG","na_avg","BOB"}
+    }
+)
+
+
+
+Result =
+VAR sel =
+    SELECTEDVALUE(Slicer_Table[Slicer])
+
+RETURN
+LOOKUPVALUE(
+    Mapping_Table[Output],
+    Mapping_Table[Slicer], sel,
+    Mapping_Table[cat], SELECTEDVALUE(MainTable[cat]),
+    Mapping_Table[cohort], SELECTEDVALUE(MainTable[cohort])
+)
