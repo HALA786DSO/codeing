@@ -1,0 +1,33 @@
+LabelDim =
+DATATABLE(
+    "Label", STRING,
+    {
+        {"med only"},
+        {"swin"},
+        {"medical+rx"},
+        {"BOB"}
+    }
+)
+
+
+
+
+
+Allowed Amount by Label :=
+VAR s = SELECTEDVALUE(Scenario[Scenario])
+VAR lbl = SELECTEDVALUE(LabelDim[Label])
+RETURN
+CALCULATE(
+    SUM(MainTable[aa_2021]),
+    FILTER(
+        MainTable,
+        SWITCH(
+            TRUE(),
+            lbl = "med only"    && s = "IVG" && MainTable[cat] = "CTG" && MainTable[cohort] = "syn_twin", TRUE(),
+            lbl = "swin"        && s = "CTG" && MainTable[cat] = "CTG" && MainTable[cohort] = "syn_twin", TRUE(),
+            lbl = "medical+rx"  && s = "IVG" && MainTable[cat] = "IVG" && MainTable[cohort] = "syn_twin", TRUE(),
+            lbl = "BOB"         && s = "CTG" && MainTable[cat] = "CTG" && MainTable[cohort] = "na_avg",   TRUE(),
+            FALSE()
+        )
+    )
+)
