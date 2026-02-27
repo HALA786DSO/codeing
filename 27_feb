@@ -1,19 +1,13 @@
-CTG Benchmark :=
-VAR s   = TRIM(SELECTEDVALUE('Scenario Parameter'[Value]))
-VAR lbl = TRIM(SELECTEDVALUE(LabelDim[Label]))
+Title - 3yr Claims (Minimal) :=
+VAR s = SELECTEDVALUE('Scenario Parameter'[Value])
 RETURN
-CALCULATE(
-    SWITCH(
-        TRUE(),
-        lbl IN {"Medical Only","Synthetic Twin"}, AVERAGE('2025_genesis_results'[syn_twin_cagr]),
-        lbl IN {"Medical+Rx","Aetna - SI BOB"},   MIN('2025_genesis_results'[na_si_bob]),
-        BLANK()
-    ),
-    FILTER(
-        '2025_genesis_results',
-        (lbl="Medical Only"   && s="IVG" && '2025_genesis_results'[play]="CTG" && '2025_genesis_results'[cohort]="syn_twin") ||
-        (lbl="Synthetic Twin" && s="CTG" && '2025_genesis_results'[play]="CTG" && '2025_genesis_results'[cohort]="syn_twin") ||
-        (lbl="Medical+Rx"     && s="IVG" && '2025_genesis_results'[play]="IVG" && '2025_genesis_results'[cohort]="syn_twin") ||
-        (lbl="Aetna - SI BOB" && s="CTG" && '2025_genesis_results'[play]="CTG" && '2025_genesis_results'[cohort]="na_avg")
-    )
+SWITCH(
+    TRUE(),
+    s = "CTG",
+        "Synthetic Twin "
+            & [performance_status]
+            & " benchmarks for 3 year claims cost trend",
+    s = "IVG",
+        "3-year CAGR (2021-2023)",
+    BLANK()
 )
