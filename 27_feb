@@ -1,15 +1,19 @@
-YearSel =
-DATATABLE(
-    "Year", STRING,
-    { {"2021"}, {"2022"}, {"2023"} }
-)
-
-
-Allowed Amount (Selected Year) :=
-SWITCH(
-    SELECTEDVALUE(YearSel[Year]),
-    "2021", [Allowed_Amount_2021],
-    "2022", [Allowed_Amount_2022],
-    "2023", [Allowed_Amount_2023],
-    BLANK()
+CTG Benchmark :=
+VAR s   = TRIM(SELECTEDVALUE('Scenario Parameter'[Value]))
+VAR lbl = TRIM(SELECTEDVALUE(LabelDim[Label]))
+RETURN
+CALCULATE(
+    SWITCH(
+        TRUE(),
+        lbl IN {"Medical Only","Synthetic Twin"}, AVERAGE('2025_genesis_results'[syn_twin_cagr]),
+        lbl IN {"Medical+Rx","Aetna - SI BOB"},   MIN('2025_genesis_results'[na_si_bob]),
+        BLANK()
+    ),
+    FILTER(
+        '2025_genesis_results',
+        (lbl="Medical Only"   && s="IVG" && '2025_genesis_results'[play]="CTG" && '2025_genesis_results'[cohort]="syn_twin") ||
+        (lbl="Synthetic Twin" && s="CTG" && '2025_genesis_results'[play]="CTG" && '2025_genesis_results'[cohort]="syn_twin") ||
+        (lbl="Medical+Rx"     && s="IVG" && '2025_genesis_results'[play]="IVG" && '2025_genesis_results'[cohort]="syn_twin") ||
+        (lbl="Aetna - SI BOB" && s="CTG" && '2025_genesis_results'[play]="CTG" && '2025_genesis_results'[cohort]="na_avg")
+    )
 )
