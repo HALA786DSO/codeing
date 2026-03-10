@@ -1,0 +1,35 @@
+SELECT *
+FROM (
+  SELECT
+    SAFE_CAST(member_id AS STRING) AS member_id,
+    CONCAT(
+      'allowed_amt_q',
+      CAST(EXTRACT(QUARTER FROM srv_start_dt) AS STRING),
+      '_',
+      CAST(EXTRACT(YEAR FROM srv_start_dt) AS STRING)
+    ) AS qtr_col,
+    allowed_amt
+  FROM `edp-prod-hcbstorage.edp_hcb_core_cnsv.CLAIM_LINE`
+  WHERE EXTRACT(YEAR FROM srv_start_dt) BETWEEN 2022 AND 2025
+    AND summarized_srv_ind = 'Y'
+    AND duplicate_ind = 'N'
+)
+PIVOT (
+  SUM(allowed_amt)
+  FOR qtr_col IN (
+    'allowed_amt_q1_2022',
+    'allowed_amt_q2_2022',
+    'allowed_amt_q3_2022',
+    'allowed_amt_q4_2022',
+    'allowed_amt_q1_2023',
+    'allowed_amt_q2_2023',
+    'allowed_amt_q3_2023',
+    'allowed_amt_q4_2023',
+    'allowed_amt_q1_2024',
+    'allowed_amt_q2_2024',
+    'allowed_amt_q3_2024',
+    'allowed_amt_q4_2024',
+    'allowed_amt_q1_2025'
+  )
+)
+ORDER BY member_id;
