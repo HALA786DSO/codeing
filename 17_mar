@@ -1,0 +1,52 @@
+Scorecard_Text =
+VAR s = SELECTEDVALUE('Scenario Parameter'[Value])
+
+VAR val1 =
+    SWITCH(
+        TRUE(),
+        s = "CTG",
+            CALCULATE(
+                AVERAGE('2025_genesis_results'[syn_twin_cagr]),
+                '2025_genesis_results'[play] = "CTG",
+                '2025_genesis_results'[cohort] = "syn_twin"
+            ),
+        s = "IVG",
+            CALCULATE(
+                AVERAGE('2025_genesis_results'[syn_twin_cagr]),
+                '2025_genesis_results'[play] = "IVG",
+                '2025_genesis_results'[cohort] = "syn_twin"
+            )
+    )
+
+VAR val2 =
+    SWITCH(
+        TRUE(),
+        s = "CTG",
+            CALCULATE(
+                MIN('2025_genesis_results'[na_si_bob]),
+                '2025_genesis_results'[play] = "CTG",
+                '2025_genesis_results'[cohort] = "na_avg"
+            ),
+        s = "IVG",
+            CALCULATE(
+                AVERAGE('2025_genesis_results'[cagr]),
+                '2025_genesis_results'[play] = "IVG",
+                '2025_genesis_results'[cohort] = "syn_twin"
+            )
+    )
+
+RETURN
+SWITCH(
+    TRUE(),
+    s = "CTG",
+        "Synthetic Twin: "
+        & FORMAT(val1, "0.0%")
+        & " vs Aetna-SI BOB: "
+        & FORMAT(val2, "0.0%"),
+        
+    s = "IVG",
+        "Medical Only: "
+        & FORMAT(val1, "0.0%")
+        & " vs Medical+Rx: "
+        & FORMAT(val2, "0.0%")
+)
